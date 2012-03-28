@@ -43,6 +43,9 @@ var pully = {
 	
 	position: null,
 	refreshPossible: false,
+	scrollTopBoundary: 0.05,
+	withinTopBoundary: false,
+	origStartingPosition: null,
 	
 	init: function() {
 		var current_url = document.URL;
@@ -55,17 +58,29 @@ var pully = {
 			$(window).bind('scrollstop', pully.scrollStop);
 		}
 	},
+
+	checkScrollTopBoundary: function() {
+		var totalHeight = $('body').height(),
+			positionPercent = null;
+		if (pully.origStartingPosition === null) {
+			pully.origStartingPosition = pully.position;
+		}
+		positionPercent = pully.origStartingPosition / totalHeight;
+		pully.withinTopBoundary = positionPercent <= pully.scrollTopBoundary;
+	},
 	
 	scrollStart: function() {
 		pully.position = $(window).scrollTop();
-		
-		if (pully.position <= -30)
+
+		pully.checkScrollTopBoundary();
+
+		if (pully.position <= -30 && pully.withinTopBoundary)
 		{
 			$('#pullToRefresh #pullyText').text('Release to refresh');
 			$('#pullToRefresh .icon').addClass('release');
 			pully.refreshPossible = true;
 		}
-		else if (pully.position <= -5 && pully.refreshPossible === false)
+		else if (pully.position <= -5 && pully.refreshPossible === false && pully.withinTopBoundary)
 		{
 			pully.slideDownMenu();
 		}
@@ -78,6 +93,7 @@ var pully = {
 	
 	scrollStop: function() {
 		pully.position = $(window).scrollTop();
+		pully.origStartingPosition = null;
 		
 		if (pully.position >= 0 && pully.refreshPossible === true)
 		{
