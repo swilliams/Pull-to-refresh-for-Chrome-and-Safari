@@ -59,6 +59,7 @@ var pully = {
 		}
 	},
 
+	// Only refresh the page if you are scrolling at the top of the page.
 	checkScrollTopBoundary: function() {
 		var totalHeight = $('body').height(),
 			positionPercent = null;
